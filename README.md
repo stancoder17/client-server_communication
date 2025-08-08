@@ -1,57 +1,84 @@
-# client-server_communication
-a basic client-server communication program implemented in Java for a university project
+# Client-server commmunication
 
+A basic client-server communication program implemented in Java for my computer science studies at Polish-Japanese Academy of Information Technology  
 
-= Introduction = 
-The program implements a Centralized Computing System, which functions as a computing server providing three key functionalities: service detection, client communication, and statistics reporting. All these functionalities operate simultaneously.
+## Introduction
+This program implements a **Centralized Computing System (CCS)**, which functions as a computing server providing three main functionalities:
+- Service discovery
+- Client communication
+- Statistics reporting  
 
-= Application Operation =
-The application consists of a single program implementing the CCS (Centralized Computing System) class, executed with the following command: 'java -jar CCS.jar <port>', where <port> is a number defining the UDP/TCP port number.
+All these features operate simultaneously.
 
-= Service Discovery =
-Upon startup, the application opens a UDP port specified by the <port> parameter and listens for incoming messages. A valid message starts with the line CCS DISCOVER, the remaining content is irrelevant. Upon receiving such a message, the server responds to the sender with CCS FOUND and resumes listening on the UDP socket.
-This functionality allows a client to detect an active server within the local network by sending a broadcast packet with the required content.
+## Application Operation
+The application consists of a single program implementing the `CCS` (Centralized Computing System) class.  
+It is executed with the following command:
+  java -jar CCS.jar <port>
 
-= Client Communication =
-After initialization, the application opens a TCP port defined by <port> and waits for client connections. The client handling process consists of the following cyclic steps:
+Where `<port>` specifies the UDP/TCP port number.
 
-1. Receiving a command from the client in the format: <OPER> <ARG1> <ARG2>
-Where <OPER> represents one of the operations: ADD, SUB, MUL, DIV, corresponding to addition, subtraction, multiplication, or division for integer values.
-<ARG1> and <ARG2> are integer-type arguments for the operation.
+## Service Discovery
+Upon startup, the application:
+1. Opens a UDP port specified by the `<port>` parameter.
+2. Listens for incoming messages.  
+   - A valid discovery message starts with:  
+     ```
+     CCS DISCOVER
+     ```  
+     The rest of the content is ignored.
+3. When such a message is received, the server responds with 'CCS FOUND'
 
-2. Computing the result based on the received values.
+4. The server then continues listening for more discovery requests.
 
-3. Sending the computed result back to the client as a single integer or returning ERROR in case of an invalid operation (e.g., division by zero, missing arguments, or an incorrect operation code).
+This mechanism allows a client to detect an active server within the local network by sending a broadcast packet containing the required content.
 
-4. Displaying information about the received operation and its result on the console.
+## Client Communication
+After initialization, the application:
+1. Opens a TCP port defined by `<port>`.
+2. Waits for client connections.
+3. Handles client requests in a continuous loop:
 
-5. Storing data for statistical purposes.
+1. **Receiving a command** in the format:
+   ```
+   <OPER> <ARG1> <ARG2>
+   ```
+   - `<OPER>`: One of `ADD`, `SUB`, `MUL`, `DIV` for integer addition, subtraction, multiplication, or division.
+   - `<ARG1>`, `<ARG2>`: Integer arguments for the operation.
 
-6. Returning to a waiting state for the next client request.
+2. **Computing the result** based on the provided values.
 
-Clients can disconnect at any time by closing their sockets. When this occurs, the respective communication thread terminates.
+3. **Sending the result** back to the client as a single integer.  
+   If the request is invalid (e.g., division by zero, missing arguments, incorrect operation), the server returns:
+   ```
+   ERROR
+   ```
 
-= Statistics Reporting =
-Throughout its operation, the server collects global statistics, including:
-- Number of newly connected clients,
-- Number of executed operations,
-- Count of each operation type,
-- Number of unsuccessful operations,
-- Sum of all computed results.
-  
-Every 10 seconds, the server outputs both global statistics and statistics covering the last 10 seconds of operation to the console.
+4. **Displaying operation details** and results in the server console.
 
-= Client =
-The client application interacts with the server according to the following steps:
-1. Sending a UDP broadcast packet within the local network to the known server port.
+5. **Storing the operation** for statistical purposes.
 
-2. Waiting for a CCS FOUND response and extracting the server's IP address.
+6. Returning to a waiting state for the next request.
 
-3. Establishing a TCP connection with the server using the same port that was used for discovering service.
+Clients may disconnect at any time by closing their sockets. When a client disconnects, its corresponding communication thread terminates.
 
-4. Sending computation requests to the server at random time intervals and waiting for responses.
+## Statistics Reporting
+The server maintains global statistics, including:
+- Total number of connected clients
+- Total number of executed operations
+- Count of each operation type
+- Number of unsuccessful operations
+- Sum of all computed results
 
-5. Terminating execution at any time (e.g., by killing the client process).
+Every **10 seconds**, the server displays:
+- Global statistics (since server start)
+- Statistics from the last 10 seconds
 
-6. This allows the client to dynamically communicate with the server and utilize its computing capabilities.
+## Client
+The client application works as follows:
+1. Sends a UDP broadcast packet to the known server port.
+2. Waits for a `CCS FOUND` response and retrieves the server's IP address.
+3. Establishes a TCP connection with the server using the same port.
+4. Sends computation requests at random time intervals and waits for responses.
+5. May terminate at any time (e.g., by stopping the process).
 
+This enables the client to dynamically discover the server and use its computing capabilities.
